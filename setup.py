@@ -15,6 +15,7 @@ exec(open('toco/version.py').read())
 # Command-line tools
 entry_points = {'console_scripts': [
     'toco = toco.toco:toco',
+    'tocot = toco.toco:toco_simbad',
 ]}
 
 setup(name='ticinfo',

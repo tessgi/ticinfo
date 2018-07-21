@@ -99,3 +99,37 @@ def toco_simbad(args=None):
     tic = args['tic']
 
     _output = print_results(tic, simbad_search=True)
+
+
+def toco_coords(args=None):
+    """
+    like tocot but starts with coords
+    """
+    if args is None:
+        parser = argparse.ArgumentParser(
+            description="Information for a TESS target")
+        parser.add_argument('ra', type=float,
+                            help="Right Ascension in decimal degrees (J2000).")
+        parser.add_argument('dec', type=float,
+                            help="Declination in decimal degrees (J2000).")
+        args = parser.parse_args(args)
+        args = vars(args)
+    ra = args['ra']
+    dec = args['dec']
+
+    tic = get_tic(ra, dec)
+    _output = print_results(tic, simbad_search=True)
+
+
+def get_tic(ra, dec):
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        catalogData = Catalogs.query_region('{} {}'.format(
+            ra, dec),
+            catalog='Tic', radius=0.006)
+
+    try:
+        return catalogData['ID'][0]
+    except IndexError:
+        logger.error("No TIC target at those coordiantes")
+        sys.exit(1)

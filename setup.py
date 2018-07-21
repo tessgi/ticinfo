@@ -16,6 +16,7 @@ exec(open('toco/version.py').read())
 entry_points = {'console_scripts': [
     'toco = toco.toco:toco',
     'tocot = toco.toco:toco_simbad',
+    'tococ = toco.toco:toco_coords'
 ]}
 
 setup(name='ticinfo',

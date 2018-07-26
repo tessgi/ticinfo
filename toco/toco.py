@@ -97,8 +97,25 @@ def toco_simbad(args=None):
         args = parser.parse_args(args)
         args = vars(args)
     tic = args['tic']
-
     _output = print_results(tic, simbad_search=True)
+
+
+def toco_name(args=None):
+    """
+    like toco but prints some more info
+    """
+    if args is None:
+        parser = argparse.ArgumentParser(
+            description="Information for a TESS target")
+        parser.add_argument('name', nargs='+',
+                            help="Name of the target")
+        args = parser.parse_args(args)
+        args.name = ' '.join(args.name)
+        args = vars(args)
+    name = args['name']
+    tic = get_tic_name(name)
+    _output = print_results(tic, simbad_search=True)
+
 
 
 def toco_coords(args=None):
@@ -116,16 +133,37 @@ def toco_coords(args=None):
         args = vars(args)
     ra = args['ra']
     dec = args['dec']
-
-    tic = get_tic(ra, dec)
+    tic = get_tic_radec(ra, dec)
     _output = print_results(tic, simbad_search=True)
 
 
-def get_tic(ra, dec):
+def get_tic_radec(ra, dec):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         catalogData = Catalogs.query_region('{} {}'.format(
             ra, dec),
+            catalog='Tic', radius=0.006)
+
+    try:
+        return catalogData['ID'][0]
+    except IndexError:
+        logger.error("No TIC target at those coordiantes")
+        sys.exit(1)
+
+def get_tic_name(name):
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        result_table = Simbad.query_object(name)
+    if result_table is None:
+        logger.error("Target name failed to resolve, please check")
+        sys.exit(1)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        ra_sex = result_table['RA'][0]
+        dec_sex = result_table['DEC'][0]
+        catalogData = Catalogs.query_region('{} {}'.format(
+            ra_sex, dec_sex),
             catalog='Tic', radius=0.006)
 
     try:

@@ -40,3 +40,14 @@ if you jusat have coordiantes you can use
 Target name: * alf Cen
 The target is in constellation Centaurus
 ```
+
+or, if you know the name of the source you can use
+```bash
+% tocon alpha cen
+    ID        ra        dec       pmRA   pmDEC    eclong     eclat    Tmag Vmag Kmag Teff rad mass    d
+--------- ---------- ---------- -------- ------ ---------- --------- ----- ---- ---- ---- --- ---- --------
+471011144 219.903981 -60.837157 -3600.35 952.11 239.482264 -42.59683 -0.15 1.35   --   --  --   -- 1.347491
+
+Target name: * alf Cen
+The target is in constellation Centaurus
+```

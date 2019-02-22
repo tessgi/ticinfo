@@ -162,8 +162,8 @@ def get_tic_name(name):
         warnings.simplefilter('ignore')
         ra_sex = result_table['RA'][0]
         dec_sex = result_table['DEC'][0]
-        catalogData = Catalogs.query_region('{} {}'.format(
-            ra_sex, dec_sex, unit=(u.hour, u.deg)),
+        catalogData = Catalogs.query_region(SkyCoord
+            (ra_sex, dec_sex, unit=(u.hour, u.deg)),
             catalog='Tic', radius=0.006)
 
     try:

@@ -153,6 +153,9 @@ def get_tic_radec(ra, dec):
 def get_tic_name(name):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
+        customSimbad = Simbad()
+        customSimbad.add_votable_fields('ra(2;A;ICRS;J2000;2000)', 'dec(2;D;ICRS;2000;2000)')
+        customSimbad.remove_votable_fields('coordinates')
         result_table = Simbad.query_object(name)
     if result_table is None:
         logger.error("Target name failed to resolve, please check")
@@ -160,8 +163,8 @@ def get_tic_name(name):
 
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        ra_sex = result_table['RA'][0]
-        dec_sex = result_table['DEC'][0]
+        ra_sex = result_table['RA_2_A_ICRS_J2000_2000'][0]
+        dec_sex = result_table['DEC_2_D_ICRS_2000_2000'][0]
         catalogData = Catalogs.query_region(SkyCoord
             (ra_sex, dec_sex, unit=(u.hour, u.deg)),
             catalog='Tic', radius=0.006)

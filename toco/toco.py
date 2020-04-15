@@ -156,7 +156,7 @@ def get_tic_name(name):
         customSimbad = Simbad()
         customSimbad.add_votable_fields('ra(2;A;ICRS;J2000;2000)', 'dec(2;D;ICRS;2000;2000)')
         customSimbad.remove_votable_fields('coordinates')
-        result_table = Simbad.query_object(name)
+        result_table = customSimbad.query_object(name)
     if result_table is None:
         logger.error("Target name failed to resolve, please check")
         sys.exit(1)

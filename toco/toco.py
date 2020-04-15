@@ -55,7 +55,20 @@ def print_results(tic=12350, simbad_search=False):
                          frame='icrs')
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
-            result_table = Simbad.query_region(skobj, radius=20 * u.arcsec)
+
+            customSimbad = Simbad()
+            customSimbad.add_votable_fields(
+                'ra(2;A;ICRS;J2000;2000)', 'dec(2;D;ICRS;2000;2000)')
+            customSimbad.remove_votable_fields('coordinates')
+
+            # try different search radii, be fast if possible
+            for i in [5, 10, 20]:
+                result_table = customSimbad.query_region(
+                    skobj, radius=i * u.arcsec)
+                if result_table is None:
+                    continue
+                else:
+                    break
 
         if result_table is None:
             logger.warning("No Simbad target resolved")
@@ -63,8 +76,8 @@ def print_results(tic=12350, simbad_search=False):
             print()
             print('Target name: {}'.format(
                 result_table['MAIN_ID'][0].decode('utf-8')))
-            print("The target is in constellation {}".format(get_constellation(
-                skobj)[0]))
+        print("The target is in constellation {}".format(get_constellation(
+            skobj)[0]))
 
     print()
 

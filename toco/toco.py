@@ -77,7 +77,7 @@ def print_results(tic=12350, simbad_search=False):
             print('Target name: {}'.format(
                 result_table['MAIN_ID'][0].decode('utf-8')))
         print("The target is in constellation {}".format(get_constellation(
-            skobj)[0]))
+            skobj)))
 
     print()
 

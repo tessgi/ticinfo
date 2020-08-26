@@ -37,17 +37,17 @@ class Target(object):
             sys.exit(1)
 
     def query(self):
-        catalogData = Catalogs.query_object('TIC' + str(self.tic), catalog="TIC")
+        catalogData = Catalogs.query_object('TIC' + str(self.tic), catalog="TIC", radius=3 * u.arcsec)
         return catalogData
 
 
 def print_results(tic=12350, simbad_search=False):
     target = Target(tic)
-    catalogData = target.query()
+    catalogData = target.query()[0]
 
     print(catalogData[['ID', 'ra', 'dec', 'pmRA', 'pmDEC',
                        'eclong', 'eclat', 'Tmag', 'Vmag', 'Kmag', 'Teff',
-                       'rad', 'mass', 'd', ]][0])
+                       'rad', 'mass', 'd', ]])
 
     if simbad_search:
         skobj = SkyCoord(ra=catalogData['ra'] * u.degree,

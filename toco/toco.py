@@ -155,7 +155,7 @@ def get_tic_radec(ra, dec):
         warnings.simplefilter('ignore')
         catalogData = Catalogs.query_region('{} {}'.format(
             ra, dec),
-            catalog='Tic', radius=0.006)
+            catalog='Tic', radius=1 * u.arcsec)
 
     try:
         return catalogData['ID'][0]

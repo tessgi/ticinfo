@@ -45,6 +45,16 @@ def print_results(tic=12350, simbad_search=False):
     target = Target(tic)
     catalogData = target.query()[0]
 
+    catalogData['ra'] = catalogData['ra'].round(6)
+    catalogData['dec'] = catalogData['dec'].round(6)
+    catalogData['eclong'] = catalogData['eclong'].round(6)
+    catalogData['eclat'] = catalogData['eclat'].round(6)
+    catalogData['pmRA'] = catalogData['pmRA'].round(2)
+    catalogData['pmDEC'] = catalogData['pmDEC'].round(2)
+    catalogData['Tmag'] = catalogData['Tmag'].round(2)
+    catalogData['Vmag'] = catalogData['Vmag'].round(2)
+    catalogData['Kmag'] = catalogData['Kmag'].round(2)
+
     print(catalogData[['ID', 'ra', 'dec', 'pmRA', 'pmDEC',
                        'eclong', 'eclat', 'Tmag', 'Vmag', 'Kmag', 'Teff',
                        'rad', 'mass', 'd', ]])

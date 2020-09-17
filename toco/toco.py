@@ -94,10 +94,10 @@ def print_results(tic=12350, simbad_search=False, data_search=False):
     target = Target(tic)
     catalogData = target.query()[0]
 
-    catalogData['ra'] = catalogData['ra'].round(6)
-    catalogData['dec'] = catalogData['dec'].round(6)
-    catalogData['eclong'] = catalogData['eclong'].round(6)
-    catalogData['eclat'] = catalogData['eclat'].round(6)
+    catalogData['ra'] = catalogData['ra'].round(5)
+    catalogData['dec'] = catalogData['dec'].round(5)
+    catalogData['eclong'] = catalogData['eclong'].round(5)
+    catalogData['eclat'] = catalogData['eclat'].round(5)
     catalogData['pmRA'] = catalogData['pmRA'].round(2)
     catalogData['pmDEC'] = catalogData['pmDEC'].round(2)
     catalogData['Tmag'] = catalogData['Tmag'].round(2)

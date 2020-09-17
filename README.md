@@ -29,6 +29,7 @@ if you have a star you think might be in Simbad, you can do this
 
 Target name: V* AU Mic
 The target is in constellation Microscopium
+```
 
 if you just have coordiantes you can use 
 ```bash
@@ -54,6 +55,7 @@ The target is in constellation Microscopium
 
 ## New exciting update, you can now see if there is data in the archive!
 Works with toco, tocon, tocot, and tococ
+```python
 % tocon L 98-59 -s
     ID        ra       dec    pmRA  pmDEC    eclong     eclat    Tmag  Vmag Kmag  Teff    rad     mass      d
 --------- ---------- ------- ----- ------- ---------- ---------- ---- ----- ---- ------ ------- -------- -------

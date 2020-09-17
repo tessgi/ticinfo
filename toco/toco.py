@@ -2,9 +2,12 @@ from __future__ import absolute_import
 from . import logger
 import argparse
 
+from numpy import ones, array
 from astropy.coordinates import SkyCoord, get_constellation
 from astroquery.mast import Catalogs
 from astroquery.simbad import Simbad
+from astroquery.mast import Observations
+from astroquery.exceptions import ResolverError, NoResultsWarning
 from astropy import units as u
 
 import sys
@@ -37,11 +40,57 @@ class Target(object):
             sys.exit(1)
 
     def query(self):
-        catalogData = Catalogs.query_object('TIC' + str(self.tic), catalog="TIC", radius=3 * u.arcsec)
+        catalogData = Catalogs.query_object(
+            f'TIC {self.tic}', catalog="TIC", radius=3 * u.arcsec)
         return catalogData
 
+    def get_obs(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=NoResultsWarning)
 
-def print_results(tic=12350, simbad_search=False):
+            products = Observations.query_criteria(
+                objectname=f'TIC {self.tic}',
+                t_exptime=(19, 1801),
+                project='TESS', obs_collection='TESS',
+                radius=.0001 * u.arcsec)
+
+            if len(products) == 0:
+                return [[], [], []]
+            # get the 2min data
+            mask_2 = ones(len(products), dtype=bool)
+            mask_2 &= array([(texp > 119) for texp in products['t_exptime']])
+            mask_2 &= array(
+                [prov.lower() == 'spoc' for prov in products['provenance_name']])
+            mask_2 &= array([filename.endswith('_lc.fits') if isinstance(
+                filename, str) else False for filename in products['dataURL']])
+
+            obs_sectors_2 = sorted(products[mask_2]['sequence_number'])
+
+            # get the FFI data
+            mask_ffi = ones(len(products), dtype=bool)
+            mask_ffi &= array([(texp > 121) for texp in products['t_exptime']])
+            mask_ffi &= array(
+                [(dataproduct == 'image') for
+                 dataproduct in products['dataproduct_type']])
+            mask_ffi &= array(
+                [prov.lower() == 'spoc' for prov in products['provenance_name']])
+
+            obs_sectors_ffi = sorted(products[mask_ffi]['sequence_number'])
+
+            # get the 20 s data
+            mask_20 = ones(len(products), dtype=bool)
+            mask_20 &= array([(texp < 119) for texp in products['t_exptime']])
+            mask_20 &= array(
+                [prov.lower() == 'spoc' for prov in products['provenance_name']])
+            mask_20 &= array([filename.endswith('_lc.fits') if isinstance(
+                filename, str) else False for filename in products['dataURL']])
+
+            obs_sectors_20 = sorted(products[mask_20]['sequence_number'])
+        obs_sectors = [obs_sectors_2, obs_sectors_ffi, obs_sectors_20]
+        return obs_sectors
+
+
+def print_results(tic=12350, simbad_search=False, data_search=False):
     target = Target(tic)
     catalogData = target.query()[0]
 
@@ -89,6 +138,13 @@ def print_results(tic=12350, simbad_search=False):
         print("The target is in constellation {}".format(get_constellation(
             skobj)))
 
+    if data_search:
+        obs_sectors = target.get_obs()
+        obs2, obsffi, obs20 = obs_sectors
+        print(f'FFI data at MAST for sectors:   {obsffi}')
+        print(f'2-min data at MAST for sectors: {obs2}')
+        print(f'20-s data at MAST for sectors:  {obs20}')
+
     print()
 
 
@@ -101,11 +157,13 @@ def toco(args=None):
             description="Information for a TESS target")
         parser.add_argument('tic', type=float,
                             help="TICID of target")
+        parser.add_argument('-s', '--showdata', action='store_true',
+                            help='List sectors with TESS data')
         args = parser.parse_args(args)
         args = vars(args)
     tic = args['tic']
-
-    _output = print_results(tic)
+    data_search = args['showdata']
+    _output = print_results(tic, data_search=data_search)
 
 
 def toco_simbad(args=None):
@@ -117,10 +175,13 @@ def toco_simbad(args=None):
             description="Information for a TESS target")
         parser.add_argument('tic', type=float,
                             help="TICID of target")
+        parser.add_argument('-s', '--showdata', action='store_true',
+                            help='List sectors with TESS data')
         args = parser.parse_args(args)
         args = vars(args)
     tic = args['tic']
-    _output = print_results(tic, simbad_search=True)
+    data_search = args['showdata']
+    _output = print_results(tic, simbad_search=True, data_search=data_search)
 
 
 def toco_name(args=None):
@@ -132,13 +193,15 @@ def toco_name(args=None):
             description="Information for a TESS target")
         parser.add_argument('name', nargs='+',
                             help="Name of the target")
+        parser.add_argument('-s', '--showdata', action='store_true',
+                            help='List sectors with TESS data')
         args = parser.parse_args(args)
         args.name = ' '.join(args.name)
         args = vars(args)
     name = args['name']
     tic = get_tic_name(name)
-    _output = print_results(tic, simbad_search=True)
-
+    data_search = args['showdata']
+    _output = print_results(tic, simbad_search=True, data_search=data_search)
 
 
 def toco_coords(args=None):
@@ -152,12 +215,15 @@ def toco_coords(args=None):
                             help="Right Ascension in decimal degrees (J2000).")
         parser.add_argument('dec', type=float,
                             help="Declination in decimal degrees (J2000).")
+        parser.add_argument('-s', '--showdata', action='store_true',
+                            help='List sectors with TESS data')
         args = parser.parse_args(args)
         args = vars(args)
     ra = args['ra']
     dec = args['dec']
+    data_search = args['showdata']
     tic = get_tic_radec(ra, dec)
-    _output = print_results(tic, simbad_search=True)
+    _output = print_results(tic, simbad_search=True, data_search=data_search)
 
 
 def get_tic_radec(ra, dec):
@@ -173,11 +239,13 @@ def get_tic_radec(ra, dec):
         logger.error("No TIC target at those coordiantes")
         sys.exit(1)
 
+
 def get_tic_name(name):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         customSimbad = Simbad()
-        customSimbad.add_votable_fields('ra(2;A;ICRS;J2000;2000)', 'dec(2;D;ICRS;J2000;2000)')
+        customSimbad.add_votable_fields(
+            'ra(2;A;ICRS;J2000;2000)', 'dec(2;D;ICRS;J2000;2000)')
         customSimbad.remove_votable_fields('coordinates')
         result_table = customSimbad.query_object(name)
     if result_table is None:
@@ -189,8 +257,8 @@ def get_tic_name(name):
         ra_sex = result_table['RA_2_A_ICRS_J2000_2000'][0]
         dec_sex = result_table['DEC_2_D_ICRS_J2000_2000'][0]
         catalogData = Catalogs.query_region(SkyCoord
-            (ra_sex, dec_sex, unit=(u.hour, u.deg)),
-            catalog='Tic', radius=0.006)
+                                            (ra_sex, dec_sex, unit=(u.hour, u.deg)),
+                                            catalog='Tic', radius=0.006)
 
     try:
         return catalogData['ID'][0]

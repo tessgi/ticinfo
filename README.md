@@ -55,7 +55,7 @@ The target is in constellation Microscopium
 
 ## New exciting update, you can now see if there is data in the archive!
 Works with toco, tocon, tocot, and tococ
-```python
+```bash
 % tocon L 98-59 -s
     ID        ra       dec    pmRA  pmDEC    eclong     eclat    Tmag  Vmag Kmag  Teff    rad     mass      d
 --------- ---------- ------- ----- ------- ---------- ---------- ---- ----- ---- ------ ------- -------- -------

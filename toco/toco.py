@@ -141,9 +141,10 @@ def print_results(tic=12350, simbad_search=False, data_search=False):
     if data_search:
         obs_sectors = target.get_obs()
         obs2, obsffi, obs20 = obs_sectors
-        print(f'FFI data at MAST for sectors:   {obsffi}')
-        print(f'2-min data at MAST for sectors: {obs2}')
-        print(f'20-s data at MAST for sectors:  {obs20}')
+
+        print(f'FFI data at MAST for sectors:   {sorted(list(set(obsffi)))}')
+        print(f'2-min data at MAST for sectors: {sorted(list(set(obs2)))}')
+        print(f'20-s data at MAST for sectors:  {sorted(list(set(obs20)))}')
 
     print()
 

@@ -134,7 +134,7 @@ def print_results(tic=12350, simbad_search=False, data_search=False):
         else:
             print()
             print('Target name: {}'.format(
-                result_table['MAIN_ID'][0].decode('utf-8')))
+                result_table['MAIN_ID'][0]))
         print("The target is in constellation {}".format(get_constellation(
             skobj)))
 

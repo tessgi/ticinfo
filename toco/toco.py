@@ -82,7 +82,7 @@ class Target(object):
             mask_20 &= array([(texp < 119) for texp in products['t_exptime']])
             mask_20 &= array(
                 [prov.lower() == 'spoc' for prov in products['provenance_name']])
-            mask_20 &= array([filename.endswith('_lc.fits') if isinstance(
+            mask_20 &= array([filename.endswith('lc.fits') if isinstance(
                 filename, str) else False for filename in products['dataURL']])
 
             obs_sectors_20 = sorted(products[mask_20]['sequence_number'])

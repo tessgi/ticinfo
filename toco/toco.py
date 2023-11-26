@@ -52,6 +52,7 @@ class Target(object):
                 objectname=f'TIC {self.tic}',
                 t_exptime=(19, 1801),
                 project='TESS', obs_collection='TESS',
+                dataproduct_type='timeseries',       #discard images
                 radius=.0001 * u.arcsec)
 
             if len(products) == 0:

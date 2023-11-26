@@ -15,8 +15,7 @@ import warnings
 warnings.filterwarnings('ignore', category=UserWarning, append=True)
 
 
-MAXTIC = 10000003844
-
+MAXTIC = 10005000540
 
 class Target(object):
 

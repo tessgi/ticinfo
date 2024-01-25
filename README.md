@@ -1,4 +1,4 @@
-# toco
+# ticinfo
 
 I wanted a way to quickly see some info about a star based on it's TICID, so I made this tool.
 

@@ -10,7 +10,18 @@ from astropy.coordinates import SkyCoord, get_constellation
 from astroquery.exceptions import NoResultsWarning, ResolverError
 from astroquery.mast import Catalogs, Observations
 from astroquery.simbad import Simbad
+from astropy.time import Time
 from numpy import array, ones
+
+from tesswcs import pointings, WCS
+
+_next_cycle = pointings['Cycle'].max()
+future_mask = pointings['Cycle'] == _next_cycle
+past_mask = np.asarray(pointings['End']) < Time.now().jd
+_ra = np.asarray(pointings['RA'])
+_dec = np.asarray(pointings['Dec'])
+_roll = np.asarray(pointings['Roll'])
+_sectors = np.asarray(pointings['Sector'])
 
 from . import get_logger
 
@@ -119,16 +130,15 @@ class Target(object):
         return obs_sectors
 
 
-def show_results(tic=12350, simbad_search=False, data_search=False):
+def show_results(tic=12350, simbad_search=False, data_search=False, future_search=False):
     target = Target(tic)
     catalogData = target.query()[0]
-
+    skobj = SkyCoord(
+        ra=catalogData["ra"] * u.degree,
+        dec=catalogData["dec"] * u.degree,
+        frame="icrs",
+    )
     if simbad_search:
-        skobj = SkyCoord(
-            ra=catalogData["ra"] * u.degree,
-            dec=catalogData["dec"] * u.degree,
-            frame="icrs",
-        )
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
@@ -154,7 +164,7 @@ def show_results(tic=12350, simbad_search=False, data_search=False):
                 extra={"markup": True},
             )
         logger.info(
-            f"[italic]The target is in constellation {get_constellation(skobj)}[/italic]",
+            f"[italic]The target is in constellation {get_constellation(skobj)}[/italic]\n",
             extra={"markup": True},
         )
 
@@ -170,8 +180,8 @@ def show_results(tic=12350, simbad_search=False, data_search=False):
     catalogData["plx"] = catalogData["plx"].round(2)
 
     logger.info(
-        f"""\n{catalogData[['ID', 'ra', 'dec', 'plx', 'Tmag', 'Vmag', 'Kmag', 'Teff',
-                       'rad', 'mass']]}"""
+        f"""{catalogData[['ID', 'ra', 'dec', 'plx', 'Tmag', 'Vmag', 'Kmag', 'Teff',
+                       'rad', 'mass']]}\n"""
     )
 
     if data_search:
@@ -179,11 +189,18 @@ def show_results(tic=12350, simbad_search=False, data_search=False):
 
         obs_sectors = target.get_obs()
         obs2, obsffi, obs20 = obs_sectors
+        past_sectors = get_observability(skobj, _sectors[past_mask], _ra[past_mask], _dec[past_mask], _roll[past_mask])
         logger.stop_spinner()
-        logger.info(f"FFI data at MAST for sectors:   {sorted(list(set(obsffi)))}")
-        logger.info(f"2-min data at MAST for sectors: {sorted(list(set(obs2)))}")
-        logger.info(f"20-s data at MAST for sectors:  {sorted(list(set(obs20)))}")
-
+        logger.info(f"[bold]Stored[/bold]: Object observable in archived TESS FFIs during sectors:   {past_sectors}", extra={'markup':True})
+        logger.info(f"[bold]Stored[/bold]: FFI light curve data at MAST for sectors:   {sorted(list(set(obsffi)))}", extra={'markup':True})
+        logger.info(f"[bold]Stored[/bold]: 2-min light curve data at MAST for sectors: {sorted(list(set(obs2)))}", extra={'markup':True})
+        logger.info(f"[bold]Stored[/bold]: 20-s light curve data at MAST for sectors:  {sorted(list(set(obs20)))}", extra={'markup':True})
+    
+    if future_search:
+        logger.start_spinner(f"Determining observability in Cycle {_next_cycle}...")
+        future_sectors = get_observability(skobj, _sectors[future_mask], _ra[future_mask], _dec[future_mask], _roll[future_mask])
+        logger.stop_spinner()
+        logger.info(f"[bold]Future[/bold]: Will be observable in Cycle {_next_cycle} sectors:  {future_sectors}", extra={'markup':True})
 
 def toco(args=None):
     """
@@ -198,9 +215,15 @@ def toco(args=None):
         )
         parser.add_argument(
             "-s",
-            "--showdata",
+            "--stored",
             action="store_true",
             help="Will query MAST to find what data is available. Will list sectors with TESS data for target in FFIs, 2 minute TPFs, and 20s TPFs.",
+        )
+        parser.add_argument(
+            "-f",
+            "--future",
+            action="store_true",
+            help=f"Will determine which sectors the target is obserable in during the next observing cycle (Cycle {_next_cycle})",
         )
         args = parser.parse_args(args)
         args = vars(args)
@@ -225,8 +248,7 @@ def toco(args=None):
     if not tic.isnumeric():
         tic = get_tic_name(tic)
     logger.stop_spinner()
-    data_search = args["showdata"]
-    show_results(tic, simbad_search=True, data_search=data_search)
+    show_results(tic, simbad_search=True, data_search=args["stored"], future_search=args["future"])
 
 
 def toco_name(args=None):
@@ -298,3 +320,17 @@ def get_tic_name(name):
     except IndexError:
         logger.error("No TIC target at those coordiantes")
         sys.exit(1)
+
+def get_observability(coord, sectors, ra, dec, roll):
+    """Find out if target will be observable in this Cycle"""
+    observable_sectors = []
+    for sdx in range(len(ra)):
+        observable = False
+        for camera in np.arange(1, 5):
+            for ccd in np.arange(1, 5):
+                wcs = WCS.predict(ra[sdx], dec[sdx], roll[sdx], camera=camera, ccd=ccd)
+                observable |= wcs.footprint_contains(coord)
+        if observable:
+            observable_sectors.append([sectors[sdx]])
+    return np.hstack(observable_sectors)
+

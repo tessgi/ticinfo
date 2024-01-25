@@ -332,5 +332,8 @@ def get_observability(coord, sectors, ra, dec, roll):
                 observable |= wcs.footprint_contains(coord)
         if observable:
             observable_sectors.append([sectors[sdx]])
-    return np.hstack(observable_sectors)
+    if observable_sectors == []:
+        return []
+    else:
+        return np.hstack(observable_sectors)
 

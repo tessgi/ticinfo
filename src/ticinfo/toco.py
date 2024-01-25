@@ -41,15 +41,15 @@ class Target(object):
         try:
             tic = int(tic)
         except:
-            logger.error("Not a valid TIC number")
+            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup":True})
             sys.exit(1)
 
         if tic > MAXTIC:
-            logger.error("Not a valid TIC number")
+            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup":True})
             sys.exit(1)
 
         if tic < 0:
-            logger.error("Not a valid TIC number")
+            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup":True})
             sys.exit(1)
 
     def query(self):

@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "ticinfo"
+version = "0.4.0"
+description = "quick information on TESS targets"
+authors = ["TESS Science Support Center <tesshelp@bigbang.gsfc.nasa.gov>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+astroquery = "^0.4.6"
+astropy = "^6.0.0"
+rich = "^13.7.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.1"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+toco = "ticinfo.toco:toco"
+tocot = "ticinfo.toco:toco"
+tococ = "ticinfo.toco:toco_coords"
+tocon = "ticinfo.toco:toco_name"

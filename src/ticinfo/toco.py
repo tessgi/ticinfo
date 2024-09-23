@@ -179,9 +179,10 @@ def show_results(tic=12350, simbad_search=False, data_search=False, future_searc
     catalogData["Kmag"] = catalogData["Kmag"].round(2)
     catalogData["plx"] = catalogData["plx"].round(2)
 
+    #RAH - modified code to print output expected from the tutorial
     logger.info(
-        f"""{catalogData[['ID', 'ra', 'dec', 'plx', 'Tmag', 'Vmag', 'Kmag', 'Teff',
-                       'rad', 'mass']]}\n"""
+        f"""{catalogData[['ID', 'ra', 'dec', 'pmRA', 'pmDEC', 'eclong', 'eclat', 'Tmag', 'Vmag', 'Kmag', 'Teff',
+                       'rad']]}\n"""
     )
 
     if data_search:
@@ -238,7 +239,9 @@ def toco(args=None):
     elif len(tic) == 2:
         if tic[0] in ["TIC", "tic"]:
             tic = tic[1]
-        elif np.all([s.isnumeric() for s in tic]):
+        #RAH: The below strips numbers of non number inputs like +-., for RA and Dec
+        #This now allows the program to process input RA and DECs    
+        elif np.all([s.lstrip('+-.,').isnumeric for s in tic]):
             tic = get_tic_radec(*tic)
         else:
             tic = get_tic_name(" ".join(tic))

@@ -14,7 +14,7 @@ rich = "^13.7.0"
 tesswcs = "^1.1.2"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.12.1"
+black = ">=23.12.1,<25.0.0"
 isort = "^5.13.2"
 
 [build-system]

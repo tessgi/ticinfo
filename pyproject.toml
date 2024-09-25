@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ticinfo"
-version = "0.4.2"
+version = "0.4.3"
 description = "quick information on TESS targets"
 authors = ["TESS Science Support Center <tesshelp@bigbang.gsfc.nasa.gov>"]
 license = "MIT"
@@ -14,7 +14,7 @@ rich = "^13.7.0"
 tesswcs = "^1.1.2"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.12.1"
+black = ">=23.12.1,<25.0.0"
 isort = "^5.13.2"
 
 [build-system]

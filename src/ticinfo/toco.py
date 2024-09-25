@@ -15,6 +15,9 @@ from numpy import array, ones
 
 from tesswcs import pointings, WCS
 
+__version__ = "0.4.3"
+
+
 _next_cycle = pointings['Cycle'].max()
 future_mask = pointings['Cycle'] == _next_cycle
 past_mask = np.asarray(pointings['End']) < Time.now().jd

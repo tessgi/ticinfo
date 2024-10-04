@@ -133,7 +133,7 @@ class Target(object):
         return obs_sectors
 
 
-def show_results(tic=12350, simbad_search=False, data_search=False, future_search=False):
+def show_results(tic=12350, simbad_search=False, data_search=False, future_search=False, long_table=False):
     target = Target(tic)
     catalogData = target.query()[0]
     skobj = SkyCoord(
@@ -184,8 +184,8 @@ def show_results(tic=12350, simbad_search=False, data_search=False, future_searc
 
     #RAH - modified code to print output expected from the tutorial
     logger.info(
-        f"""{catalogData[['ID', 'ra', 'dec', 'pmRA', 'pmDEC', 'eclong', 'eclat', 'Tmag', 'Vmag', 'Kmag', 'Teff',
-                       'rad']]}\n"""
+        f"""{catalogData[['ID', 'ra', 'dec', 'plx', 'Tmag', 'Vmag', 'Kmag', 'Teff',
+                       'rad', 'mass']]}\n"""
     )
 
     if data_search:
@@ -205,6 +205,10 @@ def show_results(tic=12350, simbad_search=False, data_search=False, future_searc
         future_sectors = get_observability(skobj, _sectors[future_mask], _ra[future_mask], _dec[future_mask], _roll[future_mask])
         logger.stop_spinner()
         logger.info(f"[bold]Future[/bold]: Will be observable in Cycle {_next_cycle} sectors:  {future_sectors}", extra={'markup':True})
+
+    if long_table:
+        logger.info(f"\n[bold]Additional Object Information:[/bold]", extra={'markup':True})
+        logger.info(f"""{catalogData[['pmRA', 'pmDEC', 'eclong', 'eclat']]}\n""", extra={'markup':True})
 
 def toco(args=None):
     """
@@ -228,6 +232,12 @@ def toco(args=None):
             "--future",
             action="store_true",
             help=f"Will determine which sectors the target is obserable in during the next observing cycle (Cycle {_next_cycle})",
+        )
+        parser.add_argument(
+            "-l",
+            "--long",
+            action="store_true",
+            help=f"Will output an additional table that contains ecliptic lat/long and pm RA/Dec",
         )
         args = parser.parse_args(args)
         args = vars(args)
@@ -254,7 +264,7 @@ def toco(args=None):
     if not tic.isnumeric():
         tic = get_tic_name(tic)
     logger.stop_spinner()
-    show_results(tic, simbad_search=True, data_search=args["stored"], future_search=args["future"])
+    show_results(tic, simbad_search=True, data_search=args["stored"], future_search=args["future"], long_table=args["long"])
 
 
 def toco_name(args=None):

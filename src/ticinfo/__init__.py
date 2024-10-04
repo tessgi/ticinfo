@@ -7,6 +7,7 @@ import os
 import __main__
 
 PACKAGEDIR = os.path.dirname(os.path.abspath(__file__))
+__version__ = "0.4.4"
 
 import time
 from threading import Event, Thread

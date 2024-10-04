@@ -15,7 +15,6 @@ from numpy import array, ones
 
 from tesswcs import pointings, WCS
 
-__version__ = "0.4.3"
 
 
 _next_cycle = pointings['Cycle'].max()

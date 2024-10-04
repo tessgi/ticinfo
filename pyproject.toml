@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ticinfo"
-version = "0.4.3"
+version = "0.4.4"
 description = "quick information on TESS targets"
 authors = ["TESS Science Support Center <tesshelp@bigbang.gsfc.nasa.gov>"]
 license = "MIT"

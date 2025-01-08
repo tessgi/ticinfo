@@ -1,13 +1,22 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging  # noqa: E401
 import os
+from importlib.metadata import PackageNotFoundError, version  # noqa
+
+
+def get_version():
+    try:
+        return version("ticinfo")
+    except PackageNotFoundError:
+        return "unknown"
+
+
+__version__ = get_version()
 
 import __main__
 
 PACKAGEDIR = os.path.dirname(os.path.abspath(__file__))
-__version__ = "0.4.4"
 
 import time
 from threading import Event, Thread

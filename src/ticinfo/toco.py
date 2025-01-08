@@ -16,14 +16,13 @@ from numpy import array, ones
 from tesswcs import pointings, WCS
 
 
-
-_next_cycle = pointings['Cycle'].max()
-future_mask = pointings['Cycle'] == _next_cycle
-past_mask = np.asarray(pointings['End']) < Time.now().jd
-_ra = np.asarray(pointings['RA'])
-_dec = np.asarray(pointings['Dec'])
-_roll = np.asarray(pointings['Roll'])
-_sectors = np.asarray(pointings['Sector'])
+_next_cycle = pointings["Cycle"].max()
+future_mask = pointings["Cycle"] == _next_cycle
+past_mask = np.asarray(pointings["End"]) < Time.now().jd
+_ra = np.asarray(pointings["RA"])
+_dec = np.asarray(pointings["Dec"])
+_roll = np.asarray(pointings["Roll"])
+_sectors = np.asarray(pointings["Sector"])
 
 from . import get_logger
 
@@ -43,15 +42,15 @@ class Target(object):
         try:
             tic = int(tic)
         except:
-            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup":True})
+            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup": True})
             sys.exit(1)
 
         if tic > MAXTIC:
-            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup":True})
+            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup": True})
             sys.exit(1)
 
         if tic < 0:
-            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup":True})
+            logger.error("[red bold]Not a valid TIC number[/]", extra={"markup": True})
             sys.exit(1)
 
     def query(self):
@@ -90,9 +89,11 @@ class Target(object):
             )
             mask_2 &= array(
                 [
-                    filename.endswith("_lc.fits")
-                    if isinstance(filename, str)
-                    else False
+                    (
+                        filename.endswith("_lc.fits")
+                        if isinstance(filename, str)
+                        else False
+                    )
                     for filename in products["dataURL"]
                 ]
             )
@@ -132,7 +133,13 @@ class Target(object):
         return obs_sectors
 
 
-def show_results(tic=12350, simbad_search=False, data_search=False, future_search=False, long_table=False):
+def show_results(
+    tic=12350,
+    simbad_search=False,
+    data_search=False,
+    future_search=False,
+    long_table=False,
+):
     target = Target(tic)
     catalogData = target.query()[0]
     skobj = SkyCoord(
@@ -181,7 +188,7 @@ def show_results(tic=12350, simbad_search=False, data_search=False, future_searc
     catalogData["Kmag"] = catalogData["Kmag"].round(2)
     catalogData["plx"] = catalogData["plx"].round(2)
 
-    #RAH - modified code to print output expected from the tutorial
+    # RAH - modified code to print output expected from the tutorial
     logger.info(
         f"""{catalogData[['ID', 'ra', 'dec', 'plx', 'Tmag', 'Vmag', 'Kmag', 'Teff',
                        'rad', 'mass']]}\n"""
@@ -192,22 +199,55 @@ def show_results(tic=12350, simbad_search=False, data_search=False, future_searc
 
         obs_sectors = target.get_obs()
         obs2, obsffi, obs20 = obs_sectors
-        past_sectors = get_observability(skobj, _sectors[past_mask], _ra[past_mask], _dec[past_mask], _roll[past_mask])
+        past_sectors = get_observability(
+            skobj,
+            _sectors[past_mask],
+            _ra[past_mask],
+            _dec[past_mask],
+            _roll[past_mask],
+        )
         logger.stop_spinner()
-        logger.info(f"[bold]Stored[/bold]: Object observable in archived TESS FFIs during sectors:   {past_sectors}", extra={'markup':True})
-        logger.info(f"[bold]Stored[/bold]: FFI light curve data at MAST for sectors:   {sorted(list(set(obsffi)))}", extra={'markup':True})
-        logger.info(f"[bold]Stored[/bold]: 2-min light curve data at MAST for sectors: {sorted(list(set(obs2)))}", extra={'markup':True})
-        logger.info(f"[bold]Stored[/bold]: 20-s light curve data at MAST for sectors:  {sorted(list(set(obs20)))}", extra={'markup':True})
-    
+        logger.info(
+            f"[bold]Stored[/bold]: Object observable in archived TESS FFIs during sectors:   {past_sectors}",
+            extra={"markup": True},
+        )
+        logger.info(
+            f"[bold]Stored[/bold]: FFI light curve data at MAST for sectors:   {sorted(list(set(obsffi)))}",
+            extra={"markup": True},
+        )
+        logger.info(
+            f"[bold]Stored[/bold]: 2-min light curve data at MAST for sectors: {sorted(list(set(obs2)))}",
+            extra={"markup": True},
+        )
+        logger.info(
+            f"[bold]Stored[/bold]: 20-s light curve data at MAST for sectors:  {sorted(list(set(obs20)))}",
+            extra={"markup": True},
+        )
+
     if future_search:
         logger.start_spinner(f"Determining observability in Cycle {_next_cycle}...")
-        future_sectors = get_observability(skobj, _sectors[future_mask], _ra[future_mask], _dec[future_mask], _roll[future_mask])
+        future_sectors = get_observability(
+            skobj,
+            _sectors[future_mask],
+            _ra[future_mask],
+            _dec[future_mask],
+            _roll[future_mask],
+        )
         logger.stop_spinner()
-        logger.info(f"[bold]Future[/bold]: Will be observable in Cycle {_next_cycle} sectors:  {future_sectors}", extra={'markup':True})
+        logger.info(
+            f"[bold]Future[/bold]: Will be observable in Cycle {_next_cycle} sectors:  {future_sectors}",
+            extra={"markup": True},
+        )
 
     if long_table:
-        logger.info(f"\n[bold]Additional Object Information:[/bold]", extra={'markup':True})
-        logger.info(f"""{catalogData[['pmRA', 'pmDEC', 'eclong', 'eclat']]}\n""", extra={'markup':True})
+        logger.info(
+            f"\n[bold]Additional Object Information:[/bold]", extra={"markup": True}
+        )
+        logger.info(
+            f"""{catalogData[['pmRA', 'pmDEC', 'eclong', 'eclat']]}\n""",
+            extra={"markup": True},
+        )
+
 
 def toco(args=None):
     """
@@ -251,9 +291,9 @@ def toco(args=None):
     elif len(tic) == 2:
         if tic[0] in ["TIC", "tic"]:
             tic = tic[1]
-        #RAH: The below strips numbers of non number inputs like +-., for RA and Dec
-        #This now allows the program to process input RA and DECs    
-        elif np.all([s.lstrip('+-.,').isnumeric for s in tic]):
+        # RAH: The below strips numbers of non number inputs like +-., for RA and Dec
+        # This now allows the program to process input RA and DECs
+        elif np.all([s.lstrip("+-.,").isnumeric for s in tic]):
             tic = get_tic_radec(*tic)
         else:
             tic = get_tic_name(" ".join(tic))
@@ -263,7 +303,13 @@ def toco(args=None):
     if not tic.isnumeric():
         tic = get_tic_name(tic)
     logger.stop_spinner()
-    show_results(tic, simbad_search=True, data_search=args["stored"], future_search=args["future"], long_table=args["long"])
+    show_results(
+        tic,
+        simbad_search=True,
+        data_search=args["stored"],
+        future_search=args["future"],
+        long_table=args["long"],
+    )
 
 
 def toco_name(args=None):
@@ -336,6 +382,7 @@ def get_tic_name(name):
         logger.error("No TIC target at those coordiantes")
         sys.exit(1)
 
+
 def get_observability(coord, sectors, ra, dec, roll):
     """Find out if target will be observable in this Cycle"""
     observable_sectors = []
@@ -351,4 +398,3 @@ def get_observability(coord, sectors, ra, dec, roll):
         return []
     else:
         return np.hstack(observable_sectors)
-

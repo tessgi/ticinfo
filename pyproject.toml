@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ticinfo"
-version = "0.4.5"
+version = "0.4.6"
 description = "quick information on TESS targets"
 authors = ["TESS Science Support Center <tesshelp@bigbang.gsfc.nasa.gov>"]
 license = "MIT"
@@ -11,7 +11,7 @@ python = "^3.9"
 astroquery = ">=0.4.6"
 astropy = ">=5.0.0"
 rich = "^13.7.0"
-tesswcs = "^1.1.2"
+tesswcs = ">=1.3.0"
 
 [tool.poetry.group.dev]
 optional = true

@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-astroquery = ">=0.4.6"
+astroquery = ">=0.4.6,<=0.4.7"
 astropy = ">=5.0.0"
 rich = "^13.7.0"
 tesswcs = "^1.1.2"

@@ -153,9 +153,13 @@ def show_results(
 
             customSimbad = Simbad()
             customSimbad.add_votable_fields(
-                "ra(2;A;ICRS;J2000;2000)", "dec(2;D;ICRS;J2000;2000)"
+               #With astroquery 0.4.11 this is no longer needed as the default is ICRS and J2000
+               #Code will break if this is not removed as no longer supported
+               # "ra(2;A;ICRS;J2000;2000)", "dec(2;D;ICRS;J2000;2000)"
+               "ra", "dec"
             )
-            customSimbad.remove_votable_fields("coordinates")
+            #This is no longer supported in 0.4.11
+            #customSimbad.remove_votable_fields("coordinates")
 
             # try different search radii, be fast if possible
             for i in [5, 10, 20]:
@@ -169,7 +173,7 @@ def show_results(
             logger.warning("No Simbad target resolved")
         else:
             logger.info(
-                f"Target name: [green bold]{result_table['MAIN_ID'][0]}[/green bold]",
+                f"Target name: [green bold]{result_table['main_id'][0]}[/green bold]",
                 extra={"markup": True},
             )
         logger.info(
@@ -356,9 +360,13 @@ def get_tic_name(name):
         warnings.simplefilter("ignore")
         customSimbad = Simbad()
         customSimbad.add_votable_fields(
-            "ra(2;A;ICRS;J2000;2000)", "dec(2;D;ICRS;J2000;2000)"
+            #With astroquery 0.4.11 this is no longer needed as the default is ICRS and J2000
+            #Code will break if this is not removed as no longer supported
+            #"ra(2;A;ICRS;J2000;2000)", "dec(2;D;ICRS;J2000;2000)"
+            "ra","dec"
         )
-        customSimbad.remove_votable_fields("coordinates")
+        #The below is void in 0.4.11
+        #customSimbad.remove_votable_fields("coordinates")
         result_table = customSimbad.query_object(name)
     if result_table is None:
         logger.error(
@@ -370,10 +378,13 @@ def get_tic_name(name):
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        ra_sex = result_table["RA_2_A_ICRS_J2000_2000"][0]
-        dec_sex = result_table["DEC_2_D_ICRS_J2000_2000"][0]
+        #ra_sex = result_table["RA_2_A_ICRS_J2000_2000"][0]
+        ra_sex = result_table["ra"][0]
+        #dec_sex = result_table["DEC_2_D_ICRS_J2000_2000"][0]
+        dec_sex = result_table["dec"][0]
         catalogData = Catalogs.query_region(
-            SkyCoord(ra_sex, dec_sex, unit=(u.hour, u.deg)), catalog="Tic", radius=0.006
+            #SkyCoord(ra_sex, dec_sex, unit=(u.hour, u.deg)), catalog="Tic", radius=0.006
+            SkyCoord(ra_sex, dec_sex, unit=(u.deg, u.deg)), catalog="Tic", radius=0.006
         )
 
     try:
